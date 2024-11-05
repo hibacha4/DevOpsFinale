@@ -15,7 +15,7 @@ services:
   app-tpfoyer:
     depends_on:
       - mysqldb
-    image: hibachafroud/tp-foyer:5.0.0  # built image name
+    image: devops4040/tp-foyer:5.0.0  # built image name
     restart: on-failure
     ports:
       - 8089:8089
