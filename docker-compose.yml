@@ -1,24 +1,34 @@
-version: '3'
+version: "3.8"
+
 services:
-  tp-foyer:
-    image: devops4040/tp-foyer:5.0.0
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=db
     ports:
-      - "8089:8089"
-    networks:
-      - app-network
+      - 3306:3306
+    volumes:
+      - db:/var/lib/mysql
+
+  app-tpfoyer:
     depends_on:
       - mysqldb
-
-  mysqldb:
-    image: mysql:8
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db
+    image: devops4040/tp-foyer:5.0.0  # built image name
+    restart: on-failure
     ports:
-      - "3306:3306"
-    networks:
-      - app-network
+      - 8089:8089
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/db?createDatabaseIfNotExist=true",
+        "spring.datasource.username": "root",
+        "spring.datasource.password": "root",
+        "spring.jpa.hibernate.ddl-auto": "update",
+        "spring.jpa.show-sql": "true"
+      }'
+    stdin_open: true
+    tty: true
 
-networks:
-  app-network:
-    driver: bridge
+volumes:
+  db:
